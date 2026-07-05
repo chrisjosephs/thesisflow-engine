@@ -1,8 +1,10 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column, ManyToOne,
-  JoinColumn, CreateDateColumn, UpdateDateColumn,
+  Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany,
+  ManyToMany, JoinColumn, JoinTable, CreateDateColumn, UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity.js';
+import { Criterion } from './criterion.entity.js';
+import { Tag } from './tag.entity.js';
 
 export enum ThesisStatus {
   ACTIVE   = 'ACTIVE',
@@ -69,6 +71,17 @@ export class Thesis {
 
   @Column({ name: 'monitoring_profile_id', type: 'uuid', nullable: true })
   monitoringProfileId: string | null;
+
+  @OneToMany(() => Criterion, (c) => c.thesis, { cascade: false })
+  criteria: Criterion[];
+
+  @ManyToMany(() => Tag, (t) => t.theses, { cascade: false })
+  @JoinTable({
+    name: 'thesis_tags',
+    joinColumn:        { name: 'thesis_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tag_id',    referencedColumnName: 'id' },
+  })
+  tags: Tag[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

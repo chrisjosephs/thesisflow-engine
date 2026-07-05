@@ -14,6 +14,7 @@ export class ThesesService {
   findPublic(): Promise<Thesis[]> {
     return this.repo.find({
       where: { visibility: ThesisVisibility.PUBLIC },
+      relations: { tags: true },
       order: { createdAt: 'DESC' },
     });
   }
@@ -21,12 +22,16 @@ export class ThesesService {
   findByOwner(userId: string): Promise<Thesis[]> {
     return this.repo.find({
       where: { ownerUserId: userId },
+      relations: { tags: true },
       order: { createdAt: 'DESC' },
     });
   }
 
   async findOne(id: string, requestingUserId?: string): Promise<Thesis> {
-    const thesis = await this.repo.findOne({ where: { id } });
+    const thesis = await this.repo.findOne({
+      where: { id },
+      relations: { criteria: true, tags: true },
+    });
     if (!thesis) throw new NotFoundException('Thesis not found');
 
     if (thesis.visibility === ThesisVisibility.PRIVATE) {
