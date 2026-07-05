@@ -7,6 +7,7 @@ import { Criterion } from './criterion.entity.js';
 import { Tag } from './tag.entity.js';
 
 export enum ThesisStatus {
+  DRAFT    = 'DRAFT',
   ACTIVE   = 'ACTIVE',
   ARCHIVED = 'ARCHIVED',
   RESOLVED = 'RESOLVED',
@@ -39,7 +40,7 @@ export class Thesis {
   @Column({ nullable: true, type: 'text' })
   description: string | null;
 
-  @Column({ type: 'enum', enum: ThesisStatus, enumName: 'thesis_status', default: ThesisStatus.ACTIVE })
+  @Column({ type: 'enum', enum: ThesisStatus, enumName: 'thesis_status', default: ThesisStatus.DRAFT })
   status: ThesisStatus;
 
   @Column({ type: 'enum', enum: ThesisVisibility, enumName: 'thesis_visibility', default: ThesisVisibility.PRIVATE })
@@ -71,6 +72,12 @@ export class Thesis {
 
   @Column({ name: 'monitoring_profile_id', type: 'uuid', nullable: true })
   monitoringProfileId: string | null;
+
+  @Column({ name: 'expires_at', type: 'timestamptz', nullable: true })
+  expiresAt: Date | null;
+
+  @Column({ name: 'resolution', type: 'text', nullable: true })
+  resolution: string | null;
 
   @OneToMany(() => Criterion, (c) => c.thesis, { cascade: false })
   criteria: Criterion[];

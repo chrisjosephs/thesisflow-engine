@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
 import { ThesisVisibility } from '../thesis.entity.js';
 
 export class CreateThesisDto {
@@ -31,4 +31,12 @@ export class CreateThesisDto {
   @IsString()
   @IsOptional()
   originalSource?: string;
+
+  @IsDateString()
+  @IsOptional()
+  expiresAt?: string;
+
+  @IsString()
+  @IsOptional()
+  resolution?: string;
 }
