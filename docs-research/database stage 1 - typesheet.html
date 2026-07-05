@@ -1,0 +1,590 @@
+
+<title>ThesisFlow — Database Type Sheet</title>
+<style>
+  :root {
+    --bg: #F6F8FA;
+    --surface: #FFFFFF;
+    --surface-alt: #F6F8FA;
+    --border: #D0D7DE;
+    --text: #1F2328;
+    --text-muted: #656D76;
+    --accent: #0969DA;
+    --pk: #BC4C00;
+    --pk-bg: #FFF1E5;
+    --pk-border: #D4783A;
+    --fk: #1A7F37;
+    --fk-bg: #E6F4EA;
+    --fk-border: #2DA44E;
+    --enum: #6639BA;
+    --enum-bg: #F0EBF9;
+    --future-bg: #FFFAEB;
+    --future: #9A6700;
+    --row-alt: #F6F8FA;
+    --row-hover: #EAF2FF;
+    --mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0D1117;
+      --surface: #161B22;
+      --surface-alt: #0D1117;
+      --border: #21262D;
+      --text: #CDD9E5;
+      --text-muted: #768390;
+      --accent: #4493F8;
+      --pk: #F0883E;
+      --pk-bg: #2A1700;
+      --pk-border: #B36024;
+      --fk: #3FB950;
+      --fk-bg: #051E0C;
+      --fk-border: #238636;
+      --enum: #BC8CFF;
+      --enum-bg: #1A0F2E;
+      --future-bg: #1C1500;
+      --future: #E3B341;
+      --row-alt: #0D1117;
+      --row-hover: #0C2040;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg: #F6F8FA; --surface: #FFFFFF; --surface-alt: #F6F8FA;
+    --border: #D0D7DE; --text: #1F2328; --text-muted: #656D76;
+    --accent: #0969DA; --pk: #BC4C00; --pk-bg: #FFF1E5; --pk-border: #D4783A;
+    --fk: #1A7F37; --fk-bg: #E6F4EA; --fk-border: #2DA44E;
+    --enum: #6639BA; --enum-bg: #F0EBF9;
+    --future-bg: #FFFAEB; --future: #9A6700;
+    --row-alt: #F6F8FA; --row-hover: #EAF2FF;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0D1117; --surface: #161B22; --surface-alt: #0D1117;
+    --border: #21262D; --text: #CDD9E5; --text-muted: #768390;
+    --accent: #4493F8; --pk: #F0883E; --pk-bg: #2A1700; --pk-border: #B36024;
+    --fk: #3FB950; --fk-bg: #051E0C; --fk-border: #238636;
+    --enum: #BC8CFF; --enum-bg: #1A0F2E;
+    --future-bg: #1C1500; --future: #E3B341;
+    --row-alt: #0D1117; --row-hover: #0C2040;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .site-branding { display: flex; flex-direction: column; gap: 1px; }
+  .site-title { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .site-meta { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+
+  .legend {
+    display: flex; gap: 16px; margin-left: auto; flex-wrap: wrap; align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+
+  .toc-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 24px;
+    display: flex; gap: 4px; flex-wrap: wrap; align-items: center;
+    position: sticky; top: 49px; z-index: 190;
+  }
+  .toc-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-muted); margin-right: 6px; white-space: nowrap;
+  }
+  .toc-bar a {
+    font-size: 11px; font-family: var(--mono); color: var(--accent);
+    text-decoration: none; padding: 2px 8px; border-radius: 4px;
+    border: 1px solid var(--border); white-space: nowrap; transition: background 0.1s, color 0.1s;
+  }
+  .toc-bar a:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .toc-bar a.is-future { color: var(--future); opacity: 0.8; }
+
+  main {
+    max-width: 1280px; margin: 0 auto;
+    padding: 32px 24px 80px;
+    display: flex; flex-direction: column; gap: 40px;
+  }
+
+  .schema-section { scroll-margin-top: 108px; }
+
+  .schema-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .schema-name {
+    font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--text);
+  }
+  .schema-desc { font-size: 11px; color: var(--text-muted); }
+  .schema-count {
+    font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+    background: var(--surface-alt); border: 1px solid var(--border);
+    padding: 1px 7px; border-radius: 10px; margin-left: auto;
+  }
+  .badge-future {
+    font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px;
+    background: var(--future-bg); color: var(--future);
+    text-transform: uppercase; letter-spacing: 0.07em; border: 1px solid var(--future);
+  }
+  .junction-note {
+    font-size: 11px; color: var(--text-muted); font-style: italic;
+    margin-bottom: 8px; padding: 5px 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+    display: inline-block;
+  }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+
+  thead { background: var(--surface-alt); }
+  th {
+    text-align: left; padding: 7px 12px;
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-muted); white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 6px 12px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--row-alt); }
+  tbody tr:hover { background: var(--row-hover); }
+
+  .field-name { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 500; white-space: nowrap; }
+  .field-name-cell { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .badge-pk { background: var(--pk-bg); color: var(--pk); border: 1px solid var(--pk-border); }
+  .badge-fk { background: var(--fk-bg); color: var(--fk); border: 1px solid var(--fk-border); }
+
+  .pg-type { font-family: var(--mono); font-size: 11px; color: var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .pg-enum { font-family: var(--mono); font-size: 11px; color: var(--enum); white-space: nowrap; }
+
+  .null-no { font-size: 11px; font-weight: 600; color: var(--text); }
+  .null-yes { font-size: 11px; color: var(--text-muted); }
+
+  .default-val { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+  .constraint-val { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+
+  .fk-ref { font-family: var(--mono); font-size: 11px; color: var(--fk); white-space: nowrap; }
+
+  .notes-text { font-size: 11px; color: var(--text-muted); }
+
+  .enum-pills { display: flex; flex-wrap: wrap; gap: 3px; padding-top: 2px; }
+  .enum-pill {
+    font-family: var(--mono); font-size: 9px;
+    background: var(--enum-bg); color: var(--enum);
+    padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  }
+</style>
+
+<header class="site-header">
+  <div class="site-branding">
+    <div class="site-title">ThesisFlow</div>
+    <div class="site-meta">database type sheet &middot; v0.1 &middot; postgresql 16</div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="badge badge-pk">PK</span> Primary Key</div>
+    <div class="legend-item"><span class="badge badge-fk">FK</span> Foreign Key</div>
+    <div class="legend-item"><span class="enum-pill" style="font-size:10px">ENUM_VAL</span> Enum value</div>
+    <div class="legend-item" style="color:var(--text-muted);font-size:11px">YES&nbsp;=&nbsp;nullable</div>
+  </div>
+</header>
+
+<nav class="toc-bar" id="toc"></nav>
+
+<main id="main"></main>
+
+<script>
+const schema = [
+  {
+    id: 'users', name: 'users',
+    fields: [
+      { name: 'id',            type: 'UUID',         nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'username',      type: 'VARCHAR(50)',   nullable: false, constraint: 'UNIQUE' },
+      { name: 'email',         type: 'VARCHAR(255)',  nullable: false, constraint: 'UNIQUE' },
+      { name: 'password_hash', type: 'VARCHAR(255)',  nullable: false, notes: 'bcrypt hash' },
+      { name: 'avatar_url',    type: 'VARCHAR(500)',  nullable: true },
+      { name: 'bio',           type: 'TEXT',          nullable: true },
+      { name: 'created_at',    type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+      { name: 'updated_at',    type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'theses', name: 'theses',
+    fields: [
+      { name: 'id',                     type: 'UUID',           nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'owner_user_id',          type: 'UUID',           nullable: false, fk: 'users.id' },
+      { name: 'title',                  type: 'VARCHAR(255)',    nullable: false },
+      { name: 'summary',                type: 'VARCHAR(500)',    nullable: true,  notes: 'Short blurb for cards / previews' },
+      { name: 'description',            type: 'TEXT',            nullable: true,  notes: 'Rich text / markdown' },
+      { name: 'status',                 type: 'ENUM',            nullable: false, default: "'DRAFT'",   isEnum: true, enumValues: ['ACTIVE','ARCHIVED','DRAFT','FALSIFIED'] },
+      { name: 'visibility',             type: 'ENUM',            nullable: false, default: "'PRIVATE'", isEnum: true, enumValues: ['PUBLIC','PRIVATE','UNLISTED'] },
+      { name: 'current_confidence',     type: 'NUMERIC(5,2)',    nullable: false, default: '50.00', constraint: '0–100' },
+      { name: 'confidence_rationale',   type: 'TEXT',            nullable: true,  notes: 'LLM-generated explanation of current confidence score' },
+      { name: 'relevance_score',        type: 'SMALLINT',        nullable: true,  constraint: '1–5',  notes: '"Still Relevant?" rating' },
+      { name: 'monitoring_profile_id',  type: 'UUID',            nullable: true,  fk: 'monitoring_profiles.id' },
+      { name: 'default_evidence_weight',type: 'NUMERIC(5,2)',    nullable: true,  default: '1.00' },
+      { name: 'created_at',             type: 'TIMESTAMPTZ',     nullable: false, default: 'NOW()' },
+      { name: 'updated_at',             type: 'TIMESTAMPTZ',     nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'thesis_confidence_history', name: 'thesis_confidence_history',
+    fields: [
+      { name: 'id',                type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'thesis_id',         type: 'UUID',          nullable: false, fk: 'theses.id' },
+      { name: 'confidence_before', type: 'NUMERIC(5,2)',  nullable: false, constraint: '0–100' },
+      { name: 'confidence_after',  type: 'NUMERIC(5,2)',  nullable: false, constraint: '0–100' },
+      { name: 'change_reason',     type: 'TEXT',          nullable: true },
+      { name: 'generated_by',      type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['AI','USER','SYSTEM'] },
+      { name: 'created_at',        type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'documents', name: 'documents',
+    desc: 'A piece of information ingested by the platform',
+    fields: [
+      { name: 'id',            type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'source_id',     type: 'UUID',          nullable: true,  fk: 'sources.id', notes: 'NULL if source is unknown' },
+      { name: 'document_type', type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['RSS_ARTICLE','MANUAL_URL','JOURNAL','SEC_FILING','PDF','BLOG','GOVERNMENT_PUBLICATION','SOCIAL_POST','YOUTUBE_TRANSCRIPT','EMAIL','BOOK','OTHER'] },
+      { name: 'title',         type: 'VARCHAR(500)',   nullable: false },
+      { name: 'url',           type: 'VARCHAR(2048)',  nullable: true,  notes: 'Max standard URL length' },
+      { name: 'published_at',  type: 'TIMESTAMPTZ',   nullable: true },
+      { name: 'summary',       type: 'TEXT',           nullable: true,  notes: 'AI-generated abstract' },
+      { name: 'raw_text',      type: 'TEXT',           nullable: true,  notes: 'Full extracted text content' },
+      { name: 'credibility',   type: 'NUMERIC(5,2)',   nullable: true,  constraint: '0–100', notes: 'Independently assessed — not inherited from source' },
+      { name: 'content_hash',  type: 'VARCHAR(64)',    nullable: true,  constraint: 'UNIQUE', notes: 'SHA-256 for deduplication' },
+      { name: 'created_at',    type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'thesis_evidence', name: 'thesis_evidence',
+    desc: 'A document becomes evidence only in the context of a thesis',
+    fields: [
+      { name: 'id',                type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'thesis_id',         type: 'UUID',          nullable: false, fk: 'theses.id' },
+      { name: 'document_id',       type: 'UUID',          nullable: false, fk: 'documents.id' },
+      { name: 'criteria_id',       type: 'UUID',          nullable: true,  fk: 'criteria.id', notes: 'Which criterion this evidence affects' },
+      { name: 'stance',            type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['SUPPORTS','CONTRADICTS','NEUTRAL'] },
+      { name: 'relevance',         type: 'NUMERIC(5,2)',  nullable: true,  constraint: '0–100' },
+      { name: 'confidence_impact', type: 'NUMERIC(5,2)',  nullable: true,  notes: 'Proposed delta before application' },
+      { name: 'delta_applied',     type: 'NUMERIC(5,2)',  nullable: true,  notes: 'Actual delta applied to thesis confidence' },
+      { name: 'generated_by',      type: 'ENUM',          nullable: false, default: "'AI'", isEnum: true, enumValues: ['AI','USER'] },
+      { name: 'reasoning',         type: 'TEXT',          nullable: true,  notes: 'LLM audit trail — the "why" behind the score' },
+      { name: 'user_override',     type: 'BOOLEAN',       nullable: false, default: 'FALSE' },
+      { name: 'override_reason',   type: 'TEXT',          nullable: true },
+      { name: 'created_at',        type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'sources', name: 'sources',
+    desc: 'The publisher or origin (e.g. Reuters, Nature, NASA)',
+    fields: [
+      { name: 'id',               type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'name',             type: 'VARCHAR(255)',   nullable: false },
+      { name: 'source_type',      type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['Government','Company','News','PeerReviewedJournal','Social','Blog','Forum','Individual','Other'] },
+      { name: 'homepage',         type: 'VARCHAR(2048)',  nullable: true },
+      { name: 'credibility',      type: 'NUMERIC(5,2)',   nullable: true,  constraint: '0–100', notes: 'Source-level baseline credibility' },
+      { name: 'platform_managed', type: 'BOOLEAN',        nullable: false, default: 'FALSE', notes: 'Platform-curated vs user-added' },
+      { name: 'created_at',       type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'source_endpoints', name: 'source_endpoints',
+    desc: 'The ingestion mechanism for a source',
+    fields: [
+      { name: 'id',            type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'source_id',     type: 'UUID',          nullable: false, fk: 'sources.id' },
+      { name: 'endpoint_type', type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['RSS','ATOM','API','SCRAPER','MANUAL','WEBHOOK'] },
+      { name: 'endpoint_url',  type: 'VARCHAR(2048)',  nullable: false },
+      { name: 'enabled',       type: 'BOOLEAN',        nullable: false, default: 'TRUE' },
+      { name: 'last_checked',  type: 'TIMESTAMPTZ',   nullable: true },
+      { name: 'etag',          type: 'VARCHAR(255)',   nullable: true,  notes: 'HTTP ETag for conditional GET requests' },
+      { name: 'last_modified', type: 'VARCHAR(255)',   nullable: true,  notes: 'HTTP Last-Modified header value' },
+      { name: 'created_at',    type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+      { name: 'updated_at',    type: 'TIMESTAMPTZ',   nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'monitoring_profiles', name: 'monitoring_profiles',
+    desc: 'Preset monitoring cadences — COSMIC, SLOW, STANDARD, ACTIVE, LIVE, CONTINUOUS',
+    fields: [
+      { name: 'id',                       type: 'UUID',           nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'name',                     type: 'VARCHAR(100)',    nullable: false, constraint: 'UNIQUE', notes: 'e.g. COSMIC, SLOW, STANDARD, ACTIVE, LIVE, CONTINUOUS' },
+      { name: 'refresh_interval_seconds', type: 'INTEGER',         nullable: false, constraint: '> 0' },
+      { name: 'estimated_cost',           type: 'NUMERIC(10,4)',   nullable: true,  notes: 'Reserved for future credit-metering system' },
+      { name: 'description',              type: 'VARCHAR(500)',    nullable: true },
+    ]
+  },
+  {
+    id: 'criteria', name: 'criteria',
+    fields: [
+      { name: 'id',                  type: 'UUID',          nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'thesis_id',           type: 'UUID',          nullable: false, fk: 'theses.id' },
+      { name: 'description',         type: 'VARCHAR(1000)', nullable: false },
+      { name: 'notes',               type: 'TEXT',          nullable: true,  notes: 'Extended mechanism reasoning' },
+      { name: 'type',                type: 'ENUM',          nullable: false, isEnum: true, enumValues: ['SUPPORT','FALSIFY','WATCH_SIGNAL'] },
+      { name: 'weight',              type: 'SMALLINT',      nullable: true,  constraint: '1–10', notes: 'Relative importance among this thesis\'s criteria' },
+      { name: 'impact_if_confirmed', type: 'NUMERIC(5,2)',  nullable: true,  constraint: '-100–+100', notes: 'Confidence delta applied when criterion fires' },
+      { name: 'current_fulfillment', type: 'NUMERIC(5,2)',  nullable: true,  default: '0.00', constraint: '0–100', notes: 'Evidence accumulated toward this criterion' },
+    ]
+  },
+  {
+    id: 'alerts', name: 'alerts',
+    fields: [
+      { name: 'id',         type: 'UUID',        nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'user_id',    type: 'UUID',        nullable: false, fk: 'users.id' },
+      { name: 'thesis_id',  type: 'UUID',        nullable: false, fk: 'theses.id' },
+      { name: 'alert_type', type: 'ENUM',        nullable: false, isEnum: true, enumValues: ['CONFIDENCE_THRESHOLD','FALSIFICATION_TRIGGERED','WATCH_SIGNAL_FIRED','NEW_EVIDENCE','STALE_THESIS'] },
+      { name: 'message',    type: 'TEXT',         nullable: false },
+      { name: 'read_at',    type: 'TIMESTAMPTZ', nullable: true,  notes: 'NULL = unread' },
+      { name: 'created_at', type: 'TIMESTAMPTZ', nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'comments', name: 'comments',
+    fields: [
+      { name: 'id',         type: 'UUID',        nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'thesis_id',  type: 'UUID',        nullable: false, fk: 'theses.id' },
+      { name: 'user_id',    type: 'UUID',        nullable: false, fk: 'users.id' },
+      { name: 'body',       type: 'TEXT',         nullable: false },
+      { name: 'created_at', type: 'TIMESTAMPTZ', nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'tags', name: 'tags',
+    fields: [
+      { name: 'id',   type: 'UUID',         nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'name', type: 'VARCHAR(100)',  nullable: false, constraint: 'UNIQUE', notes: 'Lowercase, normalised' },
+    ]
+  },
+  {
+    id: 'thesis_tags', name: 'thesis_tags',
+    junction: true, desc: 'Composite PK on (thesis_id, tag_id)',
+    fields: [
+      { name: 'thesis_id', type: 'UUID', nullable: false, pk: true, fk: 'theses.id' },
+      { name: 'tag_id',    type: 'UUID', nullable: false, pk: true, fk: 'tags.id' },
+    ]
+  },
+  {
+    id: 'thesis_forks', name: 'thesis_forks',
+    junction: true, desc: 'Composite PK on (parent_thesis_id, child_thesis_id)',
+    fields: [
+      { name: 'parent_thesis_id', type: 'UUID',        nullable: false, pk: true, fk: 'theses.id' },
+      { name: 'child_thesis_id',  type: 'UUID',        nullable: false, pk: true, fk: 'theses.id' },
+      { name: 'forked_by',        type: 'UUID',        nullable: false, fk: 'users.id' },
+      { name: 'created_at',       type: 'TIMESTAMPTZ', nullable: false, default: 'NOW()' },
+    ]
+  },
+  {
+    id: 'claims', name: 'claims',
+    desc: 'Atomic units of reasoning — RDF-style triple structure',
+    fields: [
+      { name: 'id',                  type: 'UUID',         nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'canonical_statement', type: 'TEXT',          nullable: false, notes: 'Normalised claim text used for deduplication' },
+      { name: 'subject',             type: 'VARCHAR(500)',  nullable: false, notes: 'RDF triple subject' },
+      { name: 'predicate',           type: 'VARCHAR(500)',  nullable: false, notes: 'RDF triple predicate' },
+      { name: 'object',              type: 'VARCHAR(500)',  nullable: false, notes: 'RDF triple object' },
+    ]
+  },
+  {
+    id: 'document_claims', name: 'document_claims',
+    junction: true, desc: 'Multiple documents may contain the same claim. Composite PK on (document_id, claim_id)',
+    fields: [
+      { name: 'document_id', type: 'UUID', nullable: false, pk: true, fk: 'documents.id' },
+      { name: 'claim_id',    type: 'UUID', nullable: false, pk: true, fk: 'claims.id' },
+    ]
+  },
+  {
+    id: 'claim_relationships', name: 'claim_relationships',
+    future: true, desc: 'Allows claims to support, contradict, or refine one another',
+    fields: [
+      { name: 'id',                type: 'UUID', nullable: false, default: 'gen_random_uuid()', pk: true },
+      { name: 'claim_a_id',        type: 'UUID', nullable: false, fk: 'claims.id' },
+      { name: 'claim_b_id',        type: 'UUID', nullable: false, fk: 'claims.id' },
+      { name: 'relationship_type', type: 'ENUM', nullable: false, isEnum: true, enumValues: ['SUPPORTS','CONTRADICTS','DUPLICATES','REFINES','DEPENDS_ON'] },
+    ]
+  },
+];
+
+function buildToc() {
+  const nav = document.getElementById('toc');
+  const label = document.createElement('span');
+  label.className = 'toc-label';
+  label.textContent = 'Jump to';
+  nav.appendChild(label);
+  schema.forEach(t => {
+    const a = document.createElement('a');
+    a.href = '#' + t.id;
+    a.textContent = t.name;
+    if (t.future) a.className = 'is-future';
+    nav.appendChild(a);
+  });
+}
+
+function buildField(f) {
+  const tr = document.createElement('tr');
+
+  // Field name
+  const tdName = document.createElement('td');
+  const nameCell = document.createElement('div');
+  nameCell.className = 'field-name-cell';
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'field-name';
+  nameSpan.textContent = f.name;
+  nameCell.appendChild(nameSpan);
+  if (f.pk) { const b = document.createElement('span'); b.className='badge badge-pk'; b.textContent='PK'; nameCell.appendChild(b); }
+  if (f.fk) { const b = document.createElement('span'); b.className='badge badge-fk'; b.textContent='FK'; nameCell.appendChild(b); }
+  tdName.appendChild(nameCell);
+  tr.appendChild(tdName);
+
+  // PG Type
+  const tdType = document.createElement('td');
+  const typeSpan = document.createElement('span');
+  typeSpan.className = f.isEnum ? 'pg-enum' : 'pg-type';
+  typeSpan.textContent = f.isEnum ? 'ENUM' : f.type;
+  tdType.appendChild(typeSpan);
+  if (f.isEnum && f.enumValues) {
+    const pills = document.createElement('div');
+    pills.className = 'enum-pills';
+    f.enumValues.forEach(v => {
+      const pill = document.createElement('span');
+      pill.className = 'enum-pill';
+      pill.textContent = v;
+      pills.appendChild(pill);
+    });
+    tdType.appendChild(pills);
+  }
+  tr.appendChild(tdType);
+
+  // Nullable
+  const tdNull = document.createElement('td');
+  const nullSpan = document.createElement('span');
+  nullSpan.className = f.nullable ? 'null-yes' : 'null-no';
+  nullSpan.textContent = f.nullable ? 'YES' : 'NO';
+  tdNull.appendChild(nullSpan);
+  tr.appendChild(tdNull);
+
+  // Default
+  const tdDef = document.createElement('td');
+  if (f.default) { const s = document.createElement('span'); s.className='default-val'; s.textContent=f.default; tdDef.appendChild(s); }
+  tr.appendChild(tdDef);
+
+  // Constraints
+  const tdCon = document.createElement('td');
+  if (f.constraint) { const s = document.createElement('span'); s.className='constraint-val'; s.textContent=f.constraint; tdCon.appendChild(s); }
+  tr.appendChild(tdCon);
+
+  // FK relation
+  const tdFk = document.createElement('td');
+  if (f.fk) { const s = document.createElement('span'); s.className='fk-ref'; s.textContent='→ ' + f.fk; tdFk.appendChild(s); }
+  tr.appendChild(tdFk);
+
+  // Notes
+  const tdNotes = document.createElement('td');
+  if (f.notes) { const s = document.createElement('span'); s.className='notes-text'; s.textContent=f.notes; tdNotes.appendChild(s); }
+  tr.appendChild(tdNotes);
+
+  return tr;
+}
+
+function buildSection(t) {
+  const section = document.createElement('section');
+  section.className = 'schema-section';
+  section.id = t.id;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'schema-header';
+
+  const name = document.createElement('span');
+  name.className = 'schema-name';
+  name.textContent = t.name;
+  header.appendChild(name);
+
+  if (t.future) {
+    const fut = document.createElement('span');
+    fut.className = 'badge-future';
+    fut.textContent = 'Future';
+    header.appendChild(fut);
+  }
+
+  if (t.desc) {
+    const desc = document.createElement('span');
+    desc.className = 'schema-desc';
+    desc.textContent = t.desc;
+    header.appendChild(desc);
+  }
+
+  const count = document.createElement('span');
+  count.className = 'schema-count';
+  count.textContent = t.fields.length + (t.fields.length === 1 ? ' field' : ' fields');
+  header.appendChild(count);
+
+  section.appendChild(header);
+
+  if (t.junction && !t.desc) {
+    const note = document.createElement('div');
+    note.className = 'junction-note';
+    note.textContent = 'Junction table';
+    section.appendChild(note);
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'table-wrap';
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const hr = document.createElement('tr');
+  ['Field', 'PG Type', 'Nullable', 'Default', 'Constraints', 'Relation', 'Notes'].forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  t.fields.forEach(f => tbody.appendChild(buildField(f)));
+  table.appendChild(tbody);
+
+  wrap.appendChild(table);
+  section.appendChild(wrap);
+  return section;
+}
+
+function build() {
+  buildToc();
+  const main = document.getElementById('main');
+  schema.forEach(t => main.appendChild(buildSection(t)));
+}
+
+build();
+</script>
