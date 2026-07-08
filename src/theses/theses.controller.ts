@@ -1,11 +1,13 @@
 import {
-  Body, Controller, Get, Param, ParseUUIDPipe,
-  Post, Request, UseGuards,
+  Body, Controller, Delete, Get, Param, ParseUUIDPipe,
+  Post, Put, Request, UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AuthUser } from '../auth/strategies/jwt.strategy.js';
 import { CreateThesisDto } from './dto/create-thesis.dto.js';
+import { CreateCriterionDto } from './dto/create-criterion.dto.js';
 import { SubmitConfidenceDto } from './dto/submit-confidence.dto.js';
+import { TriggerCriterionDto } from './dto/trigger-criterion.dto.js';
 import { ThesesService } from './theses.service.js';
 
 interface AuthRequest {
@@ -46,5 +48,57 @@ export class ThesesController {
     @Request() req: AuthRequest,
   ) {
     return this.theses.addConfidence(id, req.user.id, dto.confidence, dto.rationale);
+  }
+
+  // --- Criteria endpoints ---
+
+  @Post(':id/criteria')
+  @UseGuards(JwtAuthGuard)
+  addCriterion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CreateCriterionDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.theses.addCriterion(id, req.user.id, dto);
+  }
+
+  @Put(':id/criteria/:logicalId')
+  @UseGuards(JwtAuthGuard)
+  editCriterion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('logicalId', ParseUUIDPipe) logicalId: string,
+    @Body() dto: CreateCriterionDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.theses.editCriterion(id, req.user.id, logicalId, dto);
+  }
+
+  @Delete(':id/criteria/:logicalId')
+  @UseGuards(JwtAuthGuard)
+  retireCriterion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('logicalId', ParseUUIDPipe) logicalId: string,
+    @Request() req: AuthRequest,
+  ) {
+    return this.theses.retireCriterion(id, req.user.id, logicalId);
+  }
+
+  @Post(':id/criteria/:logicalId/trigger')
+  @UseGuards(JwtAuthGuard)
+  triggerCriterion(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('logicalId', ParseUUIDPipe) logicalId: string,
+    @Body() dto: TriggerCriterionDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.theses.triggerCriterion(id, req.user.id, logicalId, dto.outcome);
+  }
+
+  @Get(':id/criteria/:logicalId/history')
+  criterionHistory(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('logicalId', ParseUUIDPipe) logicalId: string,
+  ) {
+    return this.theses.getCriterionHistory(id, logicalId);
   }
 }

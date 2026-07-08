@@ -1,5 +1,10 @@
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, Max, Min, MinLength } from 'class-validator';
+import {
+  IsArray, IsBoolean, IsDateString, IsEnum, IsNumber,
+  IsOptional, IsString, Max, Min, MinLength, ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ThesisVisibility } from '../thesis.entity.js';
+import { CreateCriterionDto } from './create-criterion.dto.js';
 
 export class CreateThesisDto {
   @IsString()
@@ -22,7 +27,7 @@ export class CreateThesisDto {
   @Min(0)
   @Max(100)
   @IsOptional()
-  currentConfidence?: number;
+  authorStatedConfidence?: number;
 
   @IsString()
   @IsOptional()
@@ -39,4 +44,24 @@ export class CreateThesisDto {
   @IsString()
   @IsOptional()
   resolution?: string;
+
+  @IsString()
+  @IsOptional()
+  monitoringProfileName?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  tags?: string[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateCriterionDto)
+  @IsOptional()
+  criteria?: CreateCriterionDto[];
+
+  // If true, thesis is published immediately (DRAFT → ACTIVE)
+  @IsBoolean()
+  @IsOptional()
+  publish?: boolean;
 }
